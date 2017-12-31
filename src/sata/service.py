@@ -45,11 +45,11 @@ class SataDevice(object):
 
         :return: 
         """
-        for result in glob.glob('%s/proc_name' % self._path):
-            if not os.path.isfile(result):
-                continue
-            with open(result, 'r') as stream:
-                return stream.read().strip("\n")
+        # for result in glob.glob('%s/proc_name' % self._path):
+        #     if not os.path.isfile(result):
+        #         continue
+        #     with open(result, 'r') as stream:
+        #         return stream.read().strip("\n")
         return self._path
 
     @property

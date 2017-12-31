@@ -34,7 +34,7 @@ class PowerDevice(object):
                 return 0
             with open(path, 'r') as stream:
                 return stream.read().strip("\n")
-        except OSError:
+        except (OSError, IOError):
             return 0
         return 0
 
@@ -74,10 +74,7 @@ class PowerDevice(object):
 
     @property
     def discharging(self):
-        for status in self.status:
-            if status in ['Discharging']:
-                return True
-        return False
+        return self.status in ['Discharging']
 
     @property
     def current_now(self):

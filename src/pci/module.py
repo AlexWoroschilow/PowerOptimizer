@@ -44,15 +44,3 @@ class Loader(Loader):
         """
         for device in bus.devices:
             manager.append(device)
-
-        dispatcher.add_listener('window.tab', self.OnWindowTab, -70)
-
-    def OnWindowTab(self, event=None, dispatcher=None):
-        """
-
-        :param event: 
-        :param dispatcher: 
-        :return: 
-        """
-        widget = DeviceWidget()
-        event.data.addTab(widget, widget.tr('PCI'))

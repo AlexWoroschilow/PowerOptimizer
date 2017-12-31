@@ -21,6 +21,8 @@ class Manager(object):
         """
         self._battery = battery
         self._devices = []
+        self._perfomance = False
+        self._powersafe = False
 
     def append(self, device):
         """
@@ -38,6 +40,22 @@ class Manager(object):
         """
         return self._devices
 
+    @inject.params(logger='logger', battery='battery')
+    def optimize(self, logger=None, battery=None):
+        """
+        
+        :param logger: 
+        :return: 
+        """
+        if battery.discharging == True:
+            if self._perfomance == True:
+                return self.powersafe()
+            return True
+
+        if self._powersafe == True:
+            return self.performance()
+        return None
+
     @inject.params(logger='logger')
     def powersafe(self, logger=None):
         """
@@ -48,12 +66,19 @@ class Manager(object):
             logger.debug('powersafe - %s' % device.name)
             device.powersafe()
 
+        self._perfomance = False
+        self._powersafe = True
+
     @inject.params(logger='logger')
     def performance(self, logger=None):
         """
 
         :return: 
         """
+
         for device in self._devices:
             logger.debug('performance - %s' % device.name)
             device.performance()
+
+        self._perfomance = True
+        self._powersafe = False

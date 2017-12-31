@@ -46,16 +46,3 @@ class Loader(Loader):
         """
         for device in bus.devices:
             manager.append(device)
-
-        dispatcher.add_listener('window.tab', self.OnWindowTab, -110)
-
-
-    def OnWindowTab(self, event=None, dispatcher=None):
-        """
-
-        :param event: 
-        :param dispatcher: 
-        :return: 
-        """
-        widget = CPUWidget()
-        event.data.addTab(widget, widget.tr('CPU'))

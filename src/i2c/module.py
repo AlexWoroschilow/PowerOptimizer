@@ -44,17 +44,3 @@ class Loader(Loader):
         """
         for device in bus.devices:
             manager.append(device)
-
-
-        dispatcher.add_listener('window.tab', self.OnWindowTab, -90)
-
-
-    def OnWindowTab(self, event=None, dispatcher=None):
-        """
-
-        :param event: 
-        :param dispatcher: 
-        :return: 
-        """
-        widget = I2CWidget()
-        event.data.addTab(widget, widget.tr('I2C'))

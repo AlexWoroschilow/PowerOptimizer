@@ -64,7 +64,7 @@ class HDADevice(object):
         :return: 
         """
         with open(self._path, 'w') as stream:
-            stream.write('')
+            stream.write('0')
             stream.close()
 
 

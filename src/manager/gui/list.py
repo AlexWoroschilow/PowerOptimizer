@@ -26,31 +26,43 @@ class DeviceListWidget(QtWidgets.QListView):
         super(DeviceListWidget, self).__init__(parent)
         self.parent = parent
         self.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
+        self.setModel(QtGui.QStandardItemModel())
 
-        self.collection = []
+        self.scannerTimer = QtCore.QTimer(self)
+        self.scannerTimer.timeout.connect(self._onRefresh)
+        self.scannerTimer.setSingleShot(False)
+        self.scannerTimer.start(2000)
 
-    def clear(self):
+    def _onRefresh(self, event=None):
         """
         
+        :param event: 
         :return: 
         """
-        if self.model() is None:
-            return None
-        self.model().clear()
 
-    def append(self, string, optimized):
+        model = self.model()
+        if model is None:
+            return None
+
+        for index in range(0, model.rowCount()):
+            item = model.item(index)
+            device = item.device
+            item.setCheckState(2 if device.optimized else 0)
+
+    def append(self, device):
         """
         
         :param string: 
         :return: 
         """
 
-        if self.model() is None:
-            model = QtGui.QStandardItemModel()
-            self.setModel(model)
+        model = self.model()
+        if model is None:
+            return None
 
-        item = QtGui.QStandardItem(string)
-        item.setCheckState(2 if optimized else 0)
+        item = QtGui.QStandardItem(device.name)
+        item.setCheckState(2 if device.optimized else 0)
         item.setCheckable(False)
+        item.device = device
 
-        self.model().appendRow(item)
+        model.appendRow(item)

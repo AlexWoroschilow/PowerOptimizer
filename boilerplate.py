@@ -24,18 +24,22 @@ from lib.kernel import Kernel
 
 
 class Application(QtWidgets.QApplication):
-    def __init__(self, options=None, args=None):
+    def __init__(self, options=None, args=None, dispatcher=None, logger=None):
         """
 
         :param options: 
         :param args: 
         """
-        QtWidgets.QApplication.__init__(self, sys.argv)
-
         self.kernel = Kernel(options, args)
+        self.window = None
 
-        self.main = MainWindow(None, self.kernel, options, args)
-        self.main.setWindowTitle('Dictionary')
+        QtWidgets.QApplication.__init__(self, sys.argv)
+        self.setQuitOnLastWindowClosed(False)
+
+        dispatcher = self.kernel.get('event_dispatcher')
+        dispatcher.add_listener('app.start', self.onWindowToggle)
+        dispatcher.add_listener('window.toggle', self.onWindowToggle)
+        dispatcher.add_listener('window.exit', self.onWindowExit)
 
     @inject.params(dispatcher='event_dispatcher', logger='logger')
     def exec_(self, dispatcher=None, logger=None):
@@ -45,42 +49,38 @@ class Application(QtWidgets.QApplication):
         :param logger: 
         :return: 
         """
-        dispatcher.add_listener('window.show', self.onActionOpen)
-        dispatcher.add_listener('window.hide', self.onActionHide)
-        dispatcher.add_listener('window.exit', self.onActionExit)
         dispatcher.dispatch('app.start', self)
 
         return super(Application, self).exec_()
 
-    def onActionOpen(self, event, dispatcher):
+    def onWindowToggle(self, event=None, dispatcher=None):
         """
 
         :param event: 
         :return: 
         """
-        self.main.show()
+        if self.window is None:
+            self.window = MainWindow()
+            self.window.setWindowTitle('Power Optimizer')
+            return self.window.show()
 
-    def onActionHide(self, event, dispatcher):
+        self.window.close()
+        self.window = None
+        return None
+
+    def onWindowExit(self, event=None, dispatcher=None):
         """
-
+        
         :param event: 
+        :param dispatcher: 
         :return: 
         """
-        self.main.hide()
-
-    def onActionExit(self, event, dispatcher):
-        """
-
-        :param event: 
-        :return: 
-        """
-
         self.exit()
 
 
 class MainWindow(QtWidgets.QFrame):
     @inject.params(dispatcher='event_dispatcher', logger='logger')
-    def __init__(self, parent=None, kernel=None, options=None, args=None, dispatcher=None, logger=None):
+    def __init__(self, parent=None, dispatcher=None, logger=None):
         """
 
         :param parent: 
@@ -88,11 +88,11 @@ class MainWindow(QtWidgets.QFrame):
 
         super(MainWindow, self).__init__(parent)
 
-        self.setMinimumHeight(200)
-        self.setMinimumWidth(200)
-        self.setFixedWidth(300)
+        self.setMinimumHeight(500)
+        self.setMinimumWidth(290)
+        self.setFixedWidth(290)
 
-        dispatcher.dispatch('kernel_event.window', self)
+        # dispatcher.dispatch('kernel_event.window', self)
 
         self.tab = QtWidgets.QTabWidget(self)
         self.tab.setTabPosition(QtWidgets.QTabWidget.West)
@@ -109,7 +109,7 @@ class MainWindow(QtWidgets.QFrame):
         :param event: 
         :return: 
         """
-        dispatcher.dispatch('window.hide')
+        dispatcher.dispatch('window.toggle')
 
     def resizeEvent(self, event):
         """

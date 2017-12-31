@@ -11,13 +11,20 @@
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 import inject
+from PyQt5 import QtCore
+
 from lib.plugin import Loader
 
 from .service import Manager
 from .gui.widget import ManagerWidget
+from .gui.tray import DictionaryTray
 
 
 class Loader(Loader):
+    tray = None
+    widget = None
+    optimize = None
+
     @property
     def enabled(self):
         """
@@ -44,7 +51,6 @@ class Loader(Loader):
 
         binder.bind_to_constructor('manager', self.__create_manager)
 
-
     @inject.params(dispatcher='event_dispatcher')
     def boot(self, dispatcher=None):
         """
@@ -52,27 +58,58 @@ class Loader(Loader):
         :param dispatcher: 
         :return: 
         """
-        dispatcher.add_listener('window.tab', self.OnWindowTab, -120)
+        dispatcher.add_listener('window.tab', self._onWindowTab, -120)
+        dispatcher.add_listener('window.toggle_optimizer', self._onToggleOptimizer, 0)
+        dispatcher.add_listener('app.start', self._onAppStart, 0)
 
-
-    def OnWindowTab(self, event=None, dispatcher=None):
+    def _onWindowTab(self, event=None, dispatcher=None):
         """
         
         :param event: 
         :param dispatcher: 
         :return: 
         """
-        widget = ManagerWidget()
-        event.data.addTab(widget, widget.tr('Devices'))
+        application = event.data
+        if application is None:
+            return None
 
+        self.widget = ManagerWidget()
+        application.addTab(self.widget, self.widget.tr('Devices'))
 
-#         # while True:
-#         #     time.sleep(2)
-#         #     print(battery.status)
-#         # for device in manager._devices:
-#         #     print(device.powersafe())
-#         #     print(device.performance())
-#
-#         for device in manager.devices:
-#         #     device.performance()
-#             print(device.name, device.status)
+    def _onAppStart(self, event, dispatcher):
+        """
+
+        :param event:
+        :param dispatcher:
+        :return:
+        """
+        self.tray = DictionaryTray(event.data)
+
+        self.timer = QtCore.QTimer(event.data)
+        self.timer.timeout.connect(self._onActionUpdate)
+        self.timer.setSingleShot(False)
+        self.timer.start(1000)
+
+    def _onToggleOptimizer(self, event=None, dispatcher=None):
+        """
+        
+        :param event: 
+        :param dispatcher: 
+        :return: 
+        """
+        optimize = event.data
+        if optimize is None:
+            return None
+        self.optimize = optimize
+
+    @inject.params(battery='battery', manager='manager')
+    def _onActionUpdate(self, battery=None, manager=None):
+        """
+
+        :param value: 
+        :param manager: 
+        :return: 
+        """
+        self.tray.update()
+        if self.optimize == True:
+            manager.optimize()

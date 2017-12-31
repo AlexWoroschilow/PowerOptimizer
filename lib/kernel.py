@@ -80,6 +80,4 @@ class Kernel(object):
         :param name: 
         :return: 
         """
-        if self._container.has(name):
-            return self._container.get(name)
-        return None
+        return self._container.get_instance(name)
