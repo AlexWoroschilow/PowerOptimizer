@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # -*- coding: utf-8 -*-
 # Copyright 2015 Alex Woroschilow (alex.woroschilow@gmail.com)
@@ -18,6 +18,7 @@ import inject
 import logging
 import optparse
 
+from PyQt5 import QtGui
 from PyQt5 import QtWidgets
 
 from lib.kernel import Kernel
@@ -92,7 +93,7 @@ class MainWindow(QtWidgets.QFrame):
         self.setMinimumWidth(290)
         self.setFixedWidth(290)
 
-        # dispatcher.dispatch('kernel_event.window', self)
+        self.setWindowIcon(QtGui.QIcon("img/power-manager.png"))
 
         self.tab = QtWidgets.QTabWidget(self)
         self.tab.setTabPosition(QtWidgets.QTabWidget.West)
