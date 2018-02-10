@@ -42,7 +42,7 @@ class Loader(Loader):
         """
         return Manager(battery)
 
-    def config(self, binder):
+    def config(self, binder=None):
         """
 
         :param binder:
