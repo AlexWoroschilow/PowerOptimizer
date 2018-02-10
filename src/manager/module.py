@@ -76,7 +76,7 @@ class Loader(Loader):
         self.widget = ManagerWidget()
         application.addTab(self.widget, self.widget.tr('Devices'))
 
-    def _onAppStart(self, event, dispatcher):
+    def _onAppStart(self, event=None, dispatcher=None):
         """
 
         :param event:
