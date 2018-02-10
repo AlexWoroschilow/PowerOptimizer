@@ -88,7 +88,12 @@ class Loader(Loader):
         self.timer = QtCore.QTimer(event.data)
         self.timer.timeout.connect(self._onActionUpdate)
         self.timer.setSingleShot(False)
-        self.timer.start(1000)
+        self.timer.start(10 * 1000)
+
+        self.timer = QtCore.QTimer(event.data)
+        self.timer.timeout.connect(self._onActionSynchronize)
+        self.timer.setSingleShot(False)
+        self.timer.start(60 * 1000)
 
     def _onToggleOptimizer(self, event=None, dispatcher=None):
         """
@@ -111,5 +116,16 @@ class Loader(Loader):
         :return: 
         """
         self.tray.update()
+
         if self.optimize == True:
             manager.optimize()
+
+    @inject.params(battery='battery', manager='manager')
+    def _onActionSynchronize(self, battery=None, manager=None):
+        """
+
+        :param value: 
+        :param manager: 
+        :return: 
+        """
+        manager.synchronize()
