@@ -93,7 +93,7 @@ class MainWindow(QtWidgets.QFrame):
         self.setMinimumWidth(290)
         self.setFixedWidth(290)
 
-        self.setWindowIcon(QtGui.QIcon("img/power-manager.png"))
+        self.setWindowIcon(QtGui.QIcon("img/power-manager.svg"))
 
         self.tab = QtWidgets.QTabWidget(self)
         self.tab.setTabPosition(QtWidgets.QTabWidget.West)

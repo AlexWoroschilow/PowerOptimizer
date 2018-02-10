@@ -27,7 +27,7 @@ class DictionaryTray(QtWidgets.QSystemTrayIcon):
         self.scanBattery = True
         self.hidden = False
 
-        icon = QtGui.QIcon("img/power-manager.png")
+        icon = QtGui.QIcon("img/power-manager.svg")
         QtWidgets.QApplication.__init__(self, icon, app)
         self.activated.connect(self._onActionClick)
 

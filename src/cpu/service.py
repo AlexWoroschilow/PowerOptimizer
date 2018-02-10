@@ -28,7 +28,7 @@ class CPUDevice(object):
 
         :return: 
         """
-        return self._path
+        return "CPU - " + self._path
 
     @property
     def status(self):

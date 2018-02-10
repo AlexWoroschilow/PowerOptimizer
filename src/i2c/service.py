@@ -32,9 +32,9 @@ class I2CDevice(object):
             if not os.path.isfile(result):
                 continue
             with open(result, 'r') as stream:
-                return stream.read().strip("\n")
+                return "I2C - " + stream.read().strip("\n")
 
-        return self._path
+        return "I2C - " + self._path
 
     @property
     def status(self):

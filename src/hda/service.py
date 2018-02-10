@@ -28,7 +28,7 @@ class HDADevice(object):
 
         :return: 
         """
-        return 'Intel HDA'
+        return 'HDA - Intel HDA'
 
     @property
     def status(self):

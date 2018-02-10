@@ -12,6 +12,7 @@
 # WITHOUT WARRANTIES OR CONDITION
 import os
 import glob
+from lib.pciid import Manager
 
 
 class PCIDevice(object):
@@ -21,14 +22,55 @@ class PCIDevice(object):
         :param path: 
         """
         self._path = path
+        self._name = path
+
+    def _read(self, path=None):
+        """
+        
+        :param path: 
+        :return: 
+        """
+        with open(path, 'r') as stream:
+            return stream.read().strip("\n")
+        return path
 
     @property
     def name(self):
+        return "PCI - " + self._name
+
+    @name.setter
+    def name(self, value):
+        """
+        
+        :param value: 
+        :return: 
+        """
+        self._name = value
+
+    @property
+    def unique(self):
+        return "%s:%s" % (
+            self.vendor,
+            self.device,
+        )
+
+    @property
+    def device(self):
         """
 
         :return: 
         """
-        return self._path
+        device = self._read('%s/device' % self._path)
+        return device.strip('0x')
+
+    @property
+    def vendor(self):
+        """
+
+        :return: 
+        """
+        device = self._read('%s/vendor' % self._path)
+        return device.strip('0x')
 
     @property
     def status(self):
@@ -110,6 +152,7 @@ class PCI(object):
         :param path: 
         """
         self._path = path
+        self._manager = Manager()
 
     @property
     def devices(self):
@@ -117,5 +160,10 @@ class PCI(object):
 
         :return: 
         """
-        for device in glob.glob('%s/*' % self._path):
-            yield PCIDevice(device)
+        for device_path in glob.glob('%s/*' % self._path):
+            pci_device = PCIDevice(device_path)
+            pci_device.name = pci_device.unique
+            if self._manager.has(pci_device.unique):
+                device = self._manager.get(pci_device.unique)
+                pci_device.name = device.__str__()
+            yield pci_device

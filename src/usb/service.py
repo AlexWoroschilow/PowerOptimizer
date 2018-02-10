@@ -12,6 +12,7 @@
 # WITHOUT WARRANTIES OR CONDITION
 import os
 import glob
+from lib.pciid import Manager
 
 
 class USBDevice(object):
@@ -21,6 +22,18 @@ class USBDevice(object):
         :param path: 
         """
         self._path = path
+        self._name = None
+
+    def _read(self, path=None):
+        """
+
+        :param path: 
+        :return: 
+        """
+        if os.path.exists(path):
+            with open(path, 'r') as stream:
+                return stream.read().strip("\n")
+        return None
 
     @property
     def name(self):
@@ -28,12 +41,52 @@ class USBDevice(object):
         
         :return: 
         """
-        for result in glob.glob('%s/product' % self._path):
+        if self._name != None:
+            return "USB - " + self._name
+
+        for result in glob.glob('%s/interface' % self._path):
             if not os.path.isfile(result):
                 continue
             with open(result, 'r') as stream:
-                return stream.read().strip("\n")
-        return self._path
+                return "USB - " + stream.read().strip("\n")
+
+        if self.unique != None:
+            return "USB - " + self.unique
+
+        return "USB - " + self._path
+
+    @name.setter
+    def name(self, value=None):
+        """
+
+        :param value: 
+        :return: 
+        """
+        self._name = value
+
+    @property
+    def unique(self):
+        vendor = self.vendor
+        device = self.device
+        if vendor != None and device != None:
+            return "%s:%s" % (vendor, device)
+        return None
+
+    @property
+    def device(self):
+        """
+
+        :return: 
+        """
+        return self._read('%s/idProduct' % self._path)
+
+    @property
+    def vendor(self):
+        """
+
+        :return: 
+        """
+        return self._read('%s/idVendor' % self._path)
 
     @property
     def status(self):
@@ -56,7 +109,6 @@ class USBDevice(object):
         :return: 
         """
         return self.status in ['auto']
-
 
     def powersafe(self):
         """
@@ -152,6 +204,7 @@ class USB(object):
         :param path: 
         """
         self._path = path
+        self._manager = Manager('./usb.ids')
 
     @property
     def devices(self):
@@ -160,4 +213,8 @@ class USB(object):
         :return: 
         """
         for device in glob.glob('%s/*' % self._path):
-            yield USBDevice(device)
+            device_usb = USBDevice(device)
+            if self._manager.has(device_usb.unique):
+                device = self._manager.get(device_usb.unique)
+                device_usb.name = device.__str__()
+            yield device_usb
