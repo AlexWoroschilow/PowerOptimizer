@@ -32,7 +32,7 @@ class CPU(Device):
             for result in glob.glob('%s/cpufreq/scaling_governor' % device):
                 if not os.path.isfile(result):
                     continue
-                with open(result, 'r') as stream:
+                with open(result, 'r', errors='ignore') as stream:
                     yield stream.read().strip("\n")
 
     def powersafe(self):

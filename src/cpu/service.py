@@ -28,7 +28,7 @@ class CPUDevice(object):
         for result in glob.glob('%s/cpufreq/scaling_governor' % self._path):
             if not os.path.isfile(result):
                 continue
-            with open(result, 'r') as stream:
+            with open(result, 'r', errors='ignore') as stream:
                 return stream.read().strip("\n")
         return None
 

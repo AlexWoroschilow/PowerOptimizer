@@ -49,7 +49,7 @@ class SataDevice(object):
         for result in glob.glob('%s/link_power_management_policy' % self._path):
             if not os.path.isfile(result):
                 continue
-            with open(result, 'r') as stream:
+            with open(result, 'r', errors='ignore') as stream:
                 return stream.read().strip("\n")
 
         return None

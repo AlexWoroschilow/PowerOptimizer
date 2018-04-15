@@ -23,7 +23,7 @@ class LaptopDevice(object):
 
     @property
     def status(self):
-        with open(self._path, 'r') as stream:
+        with open(self._path, 'r', errors='ignore') as stream:
             return stream.read().strip("\n")
         return None
 

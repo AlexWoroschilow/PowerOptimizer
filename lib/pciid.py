@@ -87,7 +87,7 @@ class Manager(object):
         self._devices = []
         self._vendors = []
         self._hashmap = {}
-        with open(path) as stream:
+        with open(path, 'r', errors='ignore') as stream:
 
             vendor = None
             device = None

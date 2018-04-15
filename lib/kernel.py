@@ -55,23 +55,23 @@ class Kernel(object):
         return self._args
 
     def __init(self, binder):
-        """
-        
-        :param binder: 
-        :return: 
-        """
-        binder.bind('logger', logging.getLogger('app'))
+        logger = logging.getLogger('app')
+        binder.bind('logger', logger)
         binder.bind('event_dispatcher', Dispatcher(logging.getLogger('ed')))
         binder.bind('kernel', self)
 
         for module_source in self.__modules(self._sources):
-            module = importlib.import_module(module_source, True)
+            module = importlib.import_module(module_source, False)
             with module.Loader(self._options, self._args) as loader:
                 self._loaders.append(loader)
                 if not loader.enabled:
                     continue
                 if hasattr(loader.__class__, 'config') and callable(getattr(loader.__class__, 'config')):
-                    binder.install(loader.config)
+                    try:
+                        binder.install(loader.config)
+                    except UnicodeDecodeError as err:
+                        logger.error(err)
+                        continue
 
     def __modules(self, mask=None):
         """

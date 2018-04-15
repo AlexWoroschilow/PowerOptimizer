@@ -24,7 +24,7 @@ class I2CDevice(object):
         for result in glob.glob('%s/name' % self._path):
             if not os.path.isfile(result):
                 continue
-            with open(result, 'r') as stream:
+            with open(result, 'r', errors='ignore') as stream:
                 return "I2C - " + stream.read().strip("\n")
         return "I2C - " + self._path
 
@@ -33,13 +33,13 @@ class I2CDevice(object):
         for result in glob.glob('%s/power/control' % self._path):
             if not os.path.isfile(result):
                 continue
-            with open(result, 'r') as stream:
+            with open(result, 'r', errors='ignore') as stream:
                 return stream.read().strip("\n")
 
         for result in glob.glob('%s/*/power/control' % self._path):
             if not os.path.isfile(result):
                 continue
-            with open(result, 'r') as stream:
+            with open(result, 'r', errors='ignore') as stream:
                 return stream.read().strip("\n")
 
         return None

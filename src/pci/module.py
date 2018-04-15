@@ -25,7 +25,8 @@ class Loader(Loader):
     def config(self, binder):
         binder.bind('pci', PCI())
 
-    @inject.params(manager='manager', bus='pci')
-    def boot(self, manager=None, bus=None):
+    @inject.params(manager='manager', bus='pci', logger='logger')
+    def boot(self, manager=None, bus=None, logger=None):
         for device in bus.devices:
+            logger.debug(device.name)
             manager.append(device)

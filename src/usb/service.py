@@ -23,7 +23,7 @@ class USBDevice(object):
 
     def _read(self, path=None):
         if os.path.exists(path):
-            with open(path, 'r') as stream:
+            with open(path, 'r', errors='ignore') as stream:
                 return stream.read().strip("\n")
         return None
 
@@ -35,7 +35,7 @@ class USBDevice(object):
         for result in glob.glob('%s/interface' % self._path):
             if not os.path.isfile(result):
                 continue
-            with open(result, 'r') as stream:
+            with open(result, 'r', errors='ignore') as stream:
                 return "USB - " + stream.read().strip("\n")
 
         if self.unique != None:
@@ -68,7 +68,7 @@ class USBDevice(object):
         for result in glob.glob('%s/power/control' % self._path):
             if not os.path.isfile(result):
                 continue
-            with open(result, 'r') as stream:
+            with open(result, 'r', errors='ignore') as stream:
                 return stream.read().strip("\n")
         return None
 
@@ -167,7 +167,7 @@ class USB(object):
 
     def __init__(self, path="/sys/bus/usb/devices/"):
         self._path = path
-        self._manager = Manager('./usb.ids')
+        self._manager = Manager('res/usb.ids')
 
     @property
     def devices(self):

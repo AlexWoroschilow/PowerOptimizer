@@ -22,7 +22,7 @@ class PCIDevice(object):
         self._name = path
 
     def _read(self, path=None):
-        with open(path, 'r') as stream:
+        with open(path, 'r', errors='ignore') as stream:
             return stream.read().strip("\n")
         return path
 
@@ -56,7 +56,7 @@ class PCIDevice(object):
         for result in glob.glob('%s/power/control' % self._path):
             if not os.path.isfile(result):
                 continue
-            with open(result, 'r') as stream:
+            with open(result, 'r', errors='ignore') as stream:
                 return stream.read().strip("\n")
 
         return None
@@ -115,7 +115,7 @@ class PCIDevice(object):
 
 class PCI(object):
 
-    def __init__(self, path="/sys/bus/pci/devices/"):
+    def __init__(self, path="/sys/bus/pci/devices"):
         self._manager = Manager()
         self._path = path
 

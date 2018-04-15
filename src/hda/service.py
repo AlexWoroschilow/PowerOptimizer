@@ -25,7 +25,7 @@ class HDADevice(object):
     @property
     def status(self):
         if os.path.isfile(self._path):
-            with open(self._path, 'r') as stream:
+            with open(self._path, 'r', errors='ignore') as stream:
                 return stream.read().strip("\n")
         return None
 

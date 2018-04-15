@@ -24,7 +24,7 @@ class PowerDevice(object):
 
             if not path or not os.path.isfile(path):
                 return 0
-            with open(path, 'r') as stream:
+            with open(path, 'r', errors='ignore') as stream:
                 return stream.read().strip("\n")
         except (OSError, IOError):
             return 0
