@@ -16,33 +16,16 @@ from lib.plugin import Loader
 from .service import CPU
 
 
-from .gui.widget import CPUWidget
-
 class Loader(Loader):
+
     @property
     def enabled(self):
-        """
-
-        :return:
-        """
         return True
 
     def config(self, binder):
-        """
-
-        :param binder:
-        :return:
-        """
-
         binder.bind('cpu', CPU())
 
     @inject.params(manager='manager', bus='cpu', dispatcher='event_dispatcher')
     def boot(self, manager=None, bus=None, dispatcher=None):
-        """
-
-        :param manager: 
-        :param device: 
-        :return: 
-        """
         for device in bus.devices:
             manager.append(device)

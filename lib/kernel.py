@@ -20,8 +20,9 @@ from lib.event import Dispatcher
 
 
 class Kernel(object):
+
     def __init__(self, options=None, args=None, sources="src/**/module.py"):
-        """
+        """_
         
         :param self: 
         :param options: 
@@ -37,11 +38,21 @@ class Kernel(object):
         inject.configure(self.__init)
 
         for loader in self._loaders:
+            if not loader.enabled:
+                continue
             loader.boot()
 
         self._container = inject.get_injector()
         ed = self._container.get_instance('event_dispatcher')
         ed.dispatch('kernel.start')
+
+    @property
+    def options(self):
+        return self._options
+
+    @property
+    def args(self):
+        return self._args
 
     def __init(self, binder):
         """
@@ -51,6 +62,7 @@ class Kernel(object):
         """
         binder.bind('logger', logging.getLogger('app'))
         binder.bind('event_dispatcher', Dispatcher(logging.getLogger('ed')))
+        binder.bind('kernel', self)
 
         for module_source in self.__modules(self._sources):
             module = importlib.import_module(module_source, True)

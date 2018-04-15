@@ -14,33 +14,18 @@ import inject
 from lib.plugin import Loader
 
 from .service import USB
-from .gui.widget import USBWidget
+
 
 class Loader(Loader):
+
     @property
     def enabled(self):
-        """
-
-        :return:
-        """
         return True
 
     def config(self, binder):
-        """
-
-        :param binder:
-        :return:
-        """
-
         binder.bind('usb', USB())
 
-    @inject.params(manager='manager', bus='usb', dispatcher='event_dispatcher')
+    @inject.params(manager='manager', bus='usb')
     def boot(self, manager=None, bus=None, dispatcher=None):
-        """
-
-        :param manager: 
-        :param cpu: 
-        :return: 
-        """
         for device in bus.devices:
             manager.append(device)

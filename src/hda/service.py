@@ -11,31 +11,19 @@
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITION
 import os
-import glob
 
 
 class HDADevice(object):
-    def __init__(self, path=''):
-        """
 
-        :param path: 
-        """
+    def __init__(self, path=''):
         self._path = path
 
     @property
     def name(self):
-        """
-
-        :return: 
-        """
         return 'HDA - Intel HDA'
 
     @property
     def status(self):
-        """
-
-        :return: 
-        """
         if os.path.isfile(self._path):
             with open(self._path, 'r') as stream:
                 return stream.read().strip("\n")
@@ -43,43 +31,24 @@ class HDADevice(object):
 
     @property
     def optimized(self):
-        """
-
-        :return: 
-        """
         return self.status in ['1']
 
     def powersafe(self):
-        """
-
-        :return: 
-        """
         with open(self._path, 'w') as stream:
             stream.write('1')
             stream.close()
 
     def performance(self):
-        """
-
-        :return: 
-        """
         with open(self._path, 'w') as stream:
             stream.write('0')
             stream.close()
 
 
 class HDA(object):
-    def __init__(self, path="/sys/module/snd_hda_intel/parameters/power_save"):
-        """
 
-        :param path: 
-        """
+    def __init__(self, path="/sys/module/snd_hda_intel/parameters/power_save"):
         self._path = path
 
     @property
     def devices(self):
-        """
-
-        :return: 
-        """
         yield HDADevice(self._path)

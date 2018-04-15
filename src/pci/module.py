@@ -14,33 +14,18 @@ import inject
 from lib.plugin import Loader
 
 from .service import PCI
-from .gui.widget import DeviceWidget
+
 
 class Loader(Loader):
+
     @property
     def enabled(self):
-        """
-
-        :return:
-        """
         return True
 
     def config(self, binder):
-        """
-
-        :param binder:
-        :return:
-        """
-
         binder.bind('pci', PCI())
 
-    @inject.params(manager='manager', bus='pci', dispatcher='event_dispatcher')
-    def boot(self, manager=None, bus=None,dispatcher=None):
-        """
-
-        :param manager: 
-        :param cpu: 
-        :return: 
-        """
+    @inject.params(manager='manager', bus='pci')
+    def boot(self, manager=None, bus=None):
         for device in bus.devices:
             manager.append(device)

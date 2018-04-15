@@ -10,55 +10,36 @@
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITION
-import os
-import glob
 
 
 class LaptopDevice(object):
-    def __init__(self, path=''):
-        """
 
-        :param path: 
-        """
+    def __init__(self, path=''):
         self._path = path
 
     @property
     def name(self):
-        """
-
-        :return: 
-        """
         return "Laptop mode"
 
     @property
     def status(self):
-        """
-
-        :return: 
-        """
         with open(self._path, 'r') as stream:
             return stream.read().strip("\n")
         return None
 
     @property
     def optimized(self):
-        """
-
-        :return: 
-        """
         return self.status in ['5']
 
     def powersafe(self):
         """
-
         (On older kernels you may need to use noatime instead of relatime.)
         Also consider merely using a larger value for the commit option. This defines how often changed data is written to the disk (it is cached until then). 
         The default value is 5 seconds.
         See man mount(8) for details on how the rel/noatime and commit options work.
         Use laptop_mode to reduce disk usage by delaying and grouping writes. You should enable it, at least while on battery. 
         See Laptop-mode for more details:        
-
-        :return: 
+        :return:  None
         """
         with open(self._path, 'w') as stream:
             stream.write('5')
@@ -67,14 +48,12 @@ class LaptopDevice(object):
 
     def performance(self):
         """
-
         (On older kernels you may need to use noatime instead of relatime.)
         Also consider merely using a larger value for the commit option. This defines how often changed data is written to the disk (it is cached until then). 
         The default value is 5 seconds.
         See man mount(8) for details on how the rel/noatime and commit options work.
         Use laptop_mode to reduce disk usage by delaying and grouping writes. You should enable it, at least while on battery. 
         See Laptop-mode for more details:        
-
         :return: 
         """
         with open(self._path, 'w') as stream:
@@ -84,17 +63,10 @@ class LaptopDevice(object):
 
 
 class Laptop(object):
+
     def __init__(self, path="/proc/sys/vm/laptop_mode"):
-        """
-        
-        :param path: 
-        """
         self._path = path
 
     @property
     def devices(self):
-        """
-
-        :return: 
-        """
         yield LaptopDevice(self._path)

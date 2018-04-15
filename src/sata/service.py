@@ -15,6 +15,7 @@ import glob
 
 
 class SataDevice(object):
+
     def __init__(self, path=''):
         """
         min_power
@@ -41,18 +42,10 @@ class SataDevice(object):
 
     @property
     def name(self):
-        """
-
-        :return: 
-        """
         return "SATA - " + self._path
 
     @property
     def status(self):
-        """
-
-        :return: 
-        """
         for result in glob.glob('%s/link_power_management_policy' % self._path):
             if not os.path.isfile(result):
                 continue
@@ -63,15 +56,10 @@ class SataDevice(object):
 
     @property
     def optimized(self):
-        """
-
-        :return: 
-        """
         return self.status in ['min_power']
 
     def powersafe(self):
         """
-
         min_power
         This mode sets the link to its lowest power state (SLUMBER) when there is no I/O on the disk. 
         This mode is useful for times when an extended period of idle time is expected.
@@ -98,7 +86,6 @@ class SataDevice(object):
 
     def performance(self):
         """
-
         min_power
         This mode sets the link to its lowest power state (SLUMBER) when there is no I/O on the disk. 
         This mode is useful for times when an extended period of idle time is expected.
@@ -125,18 +112,11 @@ class SataDevice(object):
 
 
 class Sata(object):
+
     def __init__(self, path="/sys/class/scsi_host/"):
-        """
-        
-        :param path: 
-        """
         self._path = path
 
     @property
     def devices(self):
-        """
-
-        :return: 
-        """
         for device in glob.glob('%s/*' % self._path):
             yield SataDevice(device)

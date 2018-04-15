@@ -16,20 +16,12 @@ from lib.pciid import Manager
 
 
 class USBDevice(object):
-    def __init__(self, path=''):
-        """
 
-        :param path: 
-        """
+    def __init__(self, path=''):
         self._path = path
         self._name = None
 
     def _read(self, path=None):
-        """
-
-        :param path: 
-        :return: 
-        """
         if os.path.exists(path):
             with open(path, 'r') as stream:
                 return stream.read().strip("\n")
@@ -37,10 +29,6 @@ class USBDevice(object):
 
     @property
     def name(self):
-        """
-        
-        :return: 
-        """
         if self._name != None:
             return "USB - " + self._name
 
@@ -57,11 +45,6 @@ class USBDevice(object):
 
     @name.setter
     def name(self, value=None):
-        """
-
-        :param value: 
-        :return: 
-        """
         self._name = value
 
     @property
@@ -74,27 +57,14 @@ class USBDevice(object):
 
     @property
     def device(self):
-        """
-
-        :return: 
-        """
         return self._read('%s/idProduct' % self._path)
 
     @property
     def vendor(self):
-        """
-
-        :return: 
-        """
         return self._read('%s/idVendor' % self._path)
 
     @property
     def status(self):
-        """
-        
-        :return: 
-        """
-
         for result in glob.glob('%s/power/control' % self._path):
             if not os.path.isfile(result):
                 continue
@@ -104,10 +74,6 @@ class USBDevice(object):
 
     @property
     def optimized(self):
-        """
-
-        :return: 
-        """
         return self.status in ['auto']
 
     def powersafe(self):
@@ -198,20 +164,13 @@ class USBDevice(object):
 
 
 class USB(object):
+
     def __init__(self, path="/sys/bus/usb/devices/"):
-        """
-        
-        :param path: 
-        """
         self._path = path
         self._manager = Manager('./usb.ids')
 
     @property
     def devices(self):
-        """
-
-        :return: 
-        """
         for device in glob.glob('%s/*' % self._path):
             device_usb = USBDevice(device)
             if self._manager.has(device_usb.unique):

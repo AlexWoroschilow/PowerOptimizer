@@ -14,33 +14,18 @@ import inject
 from lib.plugin import Loader
 
 from .service import I2C
-from .gui.widget import I2CWidget
+
 
 class Loader(Loader):
+
     @property
     def enabled(self):
-        """
-
-        :return:
-        """
         return True
 
     def config(self, binder):
-        """
-
-        :param binder:
-        :return:
-        """
-
         binder.bind('i2c', I2C())
 
     @inject.params(manager='manager', bus='i2c', dispatcher='event_dispatcher')
     def boot(self, manager=None, bus=None, dispatcher=None):
-        """
-
-        :param manager: 
-        :param cpu: 
-        :return: 
-        """
         for device in bus.devices:
             manager.append(device)

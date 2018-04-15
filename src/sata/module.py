@@ -17,30 +17,15 @@ from .service import Sata
 
 
 class Loader(Loader):
+
     @property
     def enabled(self):
-        """
-
-        :return:
-        """
         return True
 
     def config(self, binder):
-        """
-
-        :param binder:
-        :return:
-        """
-
         binder.bind('sata', Sata())
 
     @inject.params(manager='manager', bus='sata')
     def boot(self, manager=None, bus=None):
-        """
-
-        :param manager: 
-        :param cpu: 
-        :return: 
-        """
         for device in bus.devices:
             manager.append(device)

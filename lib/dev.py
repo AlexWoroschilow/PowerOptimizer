@@ -15,32 +15,19 @@ import glob
 
 
 class Device(object):
-    """
-    
-    """
+    pass
 
 
 class CPU(Device):
-    def __init__(self, path="/sys/devices/system/cpu/"):
-        """
 
-        :param path: 
-        """
+    def __init__(self, path="/sys/devices/system/cpu/"):
         self._path = path
 
     def __devices(self):
-        """
-
-        :return: 
-        """
         for device in glob.glob('%s/cpu[0-9]' % self._path):
             yield device
 
     def status(self):
-        """
-
-        :return: 
-        """
         for device in self.__devices():
             for result in glob.glob('%s/cpufreq/scaling_governor' % device):
                 if not os.path.isfile(result):
@@ -49,15 +36,7 @@ class CPU(Device):
                     yield stream.read().strip("\n")
 
     def powersafe(self):
-        """
-
-        :return: 
-        """
         pass
 
     def perfomance(self):
-        """
-
-        :return: 
-        """
         pass

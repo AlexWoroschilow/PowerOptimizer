@@ -15,28 +15,16 @@ import glob
 
 
 class CPUDevice(object):
-    def __init__(self, path=''):
-        """
 
-        :param path: 
-        """
+    def __init__(self, path=''):
         self._path = path
 
     @property
     def name(self):
-        """
-
-        :return: 
-        """
         return "CPU - " + self._path
 
     @property
     def status(self):
-        """
-
-        :return: 
-        """
-
         for result in glob.glob('%s/cpufreq/scaling_governor' % self._path):
             if not os.path.isfile(result):
                 continue
@@ -46,17 +34,9 @@ class CPUDevice(object):
 
     @property
     def optimized(self):
-        """
-
-        :return: 
-        """
         return self.status in ['powersave']
 
     def powersafe(self):
-        """
-
-        :return: 
-        """
         for result in glob.glob('%s/cpufreq/scaling_governor' % self._path):
             if not os.path.isfile(result):
                 continue
@@ -65,10 +45,6 @@ class CPUDevice(object):
                 stream.close()
 
     def performance(self):
-        """
-
-        :return: 
-        """
         for result in glob.glob('%s/cpufreq/scaling_governor' % self._path):
             if not os.path.isfile(result):
                 continue
@@ -78,18 +54,11 @@ class CPUDevice(object):
 
 
 class CPU(object):
+
     def __init__(self, path="/sys/devices/system/cpu/"):
-        """
-        
-        :param path: 
-        """
         self._path = path
 
     @property
     def devices(self):
-        """
-
-        :return: 
-        """
-        for device in glob.glob('%s/cpu[0-9]' % self._path):
+        for device in glob.glob('%s/cpu[0-9]*' % self._path):
             yield CPUDevice(device)

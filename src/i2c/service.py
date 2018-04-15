@@ -15,33 +15,21 @@ import glob
 
 
 class I2CDevice(object):
-    def __init__(self, path=''):
-        """
 
-        :param path: 
-        """
+    def __init__(self, path=''):
         self._path = path
 
     @property
     def name(self):
-        """
-
-        :return: 
-        """
         for result in glob.glob('%s/name' % self._path):
             if not os.path.isfile(result):
                 continue
             with open(result, 'r') as stream:
                 return "I2C - " + stream.read().strip("\n")
-
         return "I2C - " + self._path
 
     @property
     def status(self):
-        """
-
-        :return: 
-        """
         for result in glob.glob('%s/power/control' % self._path):
             if not os.path.isfile(result):
                 continue
@@ -58,10 +46,6 @@ class I2CDevice(object):
 
     @property
     def optimized(self):
-        """
-
-        :return: 
-        """
         return self.status in ['auto']
 
     def powersafe(self):
@@ -137,18 +121,11 @@ class I2CDevice(object):
 
 
 class I2C(object):
+
     def __init__(self, path="/sys/bus/i2c/devices"):
-        """
-        
-        :param path: 
-        """
         self._path = path
 
     @property
     def devices(self):
-        """
-
-        :return: 
-        """
         for device in glob.glob('%s/i2c-*' % self._path):
             yield I2CDevice(device)

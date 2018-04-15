@@ -16,30 +16,15 @@ from .service import HDA
 
 
 class Loader(Loader):
+
     @property
     def enabled(self):
-        """
-
-        :return:
-        """
         return True
 
     def config(self, binder):
-        """
-
-        :param binder:
-        :return:
-        """
-
         binder.bind('hda', HDA())
 
     @inject.params(manager='manager', bus='hda')
     def boot(self, manager=None, bus=None):
-        """
-
-        :param manager: 
-        :param cpu: 
-        :return: 
-        """
         for device in bus.devices:
             manager.append(device)

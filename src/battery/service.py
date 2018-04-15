@@ -15,19 +15,11 @@ import glob
 
 
 class PowerDevice(object):
-    def __init__(self, path=''):
-        """
 
-        :param path: 
-        """
+    def __init__(self, path=''):
         self._path = path
 
     def __property(self, path=None):
-        """
-
-        :param path: 
-        :return: 
-        """
         try:
 
             if not path or not os.path.isfile(path):
@@ -40,10 +32,6 @@ class PowerDevice(object):
 
     @property
     def name(self):
-        """
-
-        :return: 
-        """
         for result in glob.glob('%s/model_name' % self._path):
             return self.__property(result)
         return self._path
@@ -90,10 +78,6 @@ class PowerDevice(object):
 
     @property
     def consumption(self):
-        """
-        
-        :return: 
-        """
         current_now = self.current_now
         voltage_now = self.voltage_now
         if current_now and voltage_now:
@@ -102,18 +86,11 @@ class PowerDevice(object):
 
 
 class Battery(object):
-    def __init__(self, path='/sys/class/power_supply'):
-        """
 
-        :param path: 
-        """
+    def __init__(self, path='/sys/class/power_supply'):
         self._path = path
 
     @property
     def devices(self):
-        """
-
-        :return: 
-        """
         for device in glob.glob('%s/BAT[0-9]' % self._path):
             yield PowerDevice(device)

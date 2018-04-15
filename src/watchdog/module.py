@@ -17,30 +17,15 @@ from .service import Watchdog
 
 
 class Loader(Loader):
+
     @property
     def enabled(self):
-        """
-
-        :return:
-        """
         return True
 
     def config(self, binder):
-        """
-
-        :param binder:
-        :return:
-        """
-
         binder.bind('watchdog', Watchdog())
 
     @inject.params(manager='manager', bus='watchdog')
     def boot(self, manager=None, bus=None):
-        """
-
-        :param manager: 
-        :param cpu: 
-        :return: 
-        """
         for device in bus.devices:
             manager.append(device)

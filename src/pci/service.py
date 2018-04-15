@@ -16,20 +16,12 @@ from lib.pciid import Manager
 
 
 class PCIDevice(object):
-    def __init__(self, path=''):
-        """
 
-        :param path: 
-        """
+    def __init__(self, path=''):
         self._path = path
         self._name = path
 
     def _read(self, path=None):
-        """
-        
-        :param path: 
-        :return: 
-        """
         with open(path, 'r') as stream:
             return stream.read().strip("\n")
         return path
@@ -40,11 +32,6 @@ class PCIDevice(object):
 
     @name.setter
     def name(self, value):
-        """
-        
-        :param value: 
-        :return: 
-        """
         self._name = value
 
     @property
@@ -56,28 +43,16 @@ class PCIDevice(object):
 
     @property
     def device(self):
-        """
-
-        :return: 
-        """
         device = self._read('%s/device' % self._path)
         return device.strip('0x')
 
     @property
     def vendor(self):
-        """
-
-        :return: 
-        """
         device = self._read('%s/vendor' % self._path)
         return device.strip('0x')
 
     @property
     def status(self):
-        """
-
-        :return: 
-        """
         for result in glob.glob('%s/power/control' % self._path):
             if not os.path.isfile(result):
                 continue
@@ -88,15 +63,10 @@ class PCIDevice(object):
 
     @property
     def optimized(self):
-        """
-
-        :return: 
-        """
         return self.status in ['auto']
 
     def powersafe(self):
         """
-
         Each device in the driver model has a flag to control whether it is subject to runtime power management. 
         This flag, runtime_auto, is initialized by the bus type (or generally subsystem) code using pm_runtime_allow() or pm_runtime_forbid(); 
         the default is to allow runtime power management.
@@ -109,7 +79,6 @@ class PCIDevice(object):
 
         In particular, the device can (and in the majority of cases should and will) be put into a low-power state during a system-wide transition to a sleep state even though its runtime_auto flag is clear.
         For more information about the runtime power management framework, refer to Documentation/power/runtime_pm.txt.
-
         :return: 
         """
         for result in glob.glob('%s/power/control' % self._path):
@@ -121,7 +90,6 @@ class PCIDevice(object):
 
     def performance(self):
         """
-
         Each device in the driver model has a flag to control whether it is subject to runtime power management. 
         This flag, runtime_auto, is initialized by the bus type (or generally subsystem) code using pm_runtime_allow() or pm_runtime_forbid(); 
         the default is to allow runtime power management.
@@ -146,20 +114,13 @@ class PCIDevice(object):
 
 
 class PCI(object):
-    def __init__(self, path="/sys/bus/pci/devices/"):
-        """
 
-        :param path: 
-        """
-        self._path = path
+    def __init__(self, path="/sys/bus/pci/devices/"):
         self._manager = Manager()
+        self._path = path
 
     @property
     def devices(self):
-        """
-
-        :return: 
-        """
         for device_path in glob.glob('%s/*' % self._path):
             pci_device = PCIDevice(device_path)
             pci_device.name = pci_device.unique
