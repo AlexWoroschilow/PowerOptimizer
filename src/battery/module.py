@@ -12,7 +12,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 from lib.plugin import Loader
 
-from .service import Battery
+from .service import BatteryPool
 
 
 class Loader(Loader):
@@ -22,6 +22,5 @@ class Loader(Loader):
         return True
 
     def config(self, binder):
-        bus = Battery()
-        for device in bus.devices:
-            binder.bind('battery', device)
+        for index, device in enumerate((BatteryPool()).devices):
+            binder.bind('battery-%s' % index, device)

@@ -12,36 +12,57 @@
 # WITHOUT WARRANTIES OR CONDITION
 import os
 import glob
+import inject
 
 
-class I2CDevice(object):
+class I2C(object):
 
     def __init__(self, path=''):
         self._path = path
+
+    @inject.params(logger='logger')
+    def __property_get(self, path=None, logger=None):
+        try:
+            if not path or not os.path.isfile(path):
+                return None
+            with open(path, 'r', errors='ignore') as stream:
+                return stream.read().strip("\n")
+        except (OSError, IOError) as ex:
+            logger.error(ex)
+            return None
+        return None
+
+    @inject.params(logger='logger')
+    def __property_set(self, path=None, value=None, logger=None):
+        try:
+            if not path or not os.path.isfile(path):
+                return None
+            with open(path, 'w', errors='ignore') as stream:
+                stream.write(value)
+                stream.close()
+        except (OSError, IOError) as ex:
+            logger.error(ex)
+        return None
 
     @property
     def name(self):
         for result in glob.glob('%s/name' % self._path):
             if not os.path.isfile(result):
                 continue
-            with open(result, 'r', errors='ignore') as stream:
-                return "I2C - " + stream.read().strip("\n")
-        return "I2C - " + self._path
+            return "I2C -%s " % self.__property_get(result)
+        return "I2C - %s" % self._path
 
     @property
     def status(self):
         for result in glob.glob('%s/power/control' % self._path):
             if not os.path.isfile(result):
                 continue
-            with open(result, 'r', errors='ignore') as stream:
-                return stream.read().strip("\n")
+            return self.__property_get(result)
 
         for result in glob.glob('%s/*/power/control' % self._path):
             if not os.path.isfile(result):
                 continue
-            with open(result, 'r', errors='ignore') as stream:
-                return stream.read().strip("\n")
-
+            return self.__property_get(result)
         return None
 
     @property
@@ -70,16 +91,12 @@ class I2CDevice(object):
         for result in glob.glob('%s/power/control' % self._path):
             if not os.path.isfile(result):
                 continue
-            with open(result, 'w') as stream:
-                stream.write('auto')
-                stream.close()
-
+            self.__property_set(result, 'auto')
+            
         for result in glob.glob('%s/*/power/control' % self._path):
             if not os.path.isfile(result):
                 continue
-            with open(result, 'w') as stream:
-                stream.write('auto')
-                stream.close()
+            self.__property_set(result, 'auto')
 
         return None
 
@@ -106,21 +123,17 @@ class I2CDevice(object):
         for result in glob.glob('%s/power/control' % self._path):
             if not os.path.isfile(result):
                 continue
-            with open(result, 'w') as stream:
-                stream.write('on')
-                stream.close()
+            self.__property_set(result, 'on')
 
         for result in glob.glob('%s/*/power/control' % self._path):
             if not os.path.isfile(result):
                 continue
-            with open(result, 'w') as stream:
-                stream.write('on')
-                stream.close()
+            self.__property_set(result, 'on')
 
         return None
 
 
-class I2C(object):
+class I2CPool(object):
 
     def __init__(self, path="/sys/bus/i2c/devices"):
         self._path = path
@@ -128,4 +141,4 @@ class I2C(object):
     @property
     def devices(self):
         for device in glob.glob('%s/i2c-*' % self._path):
-            yield I2CDevice(device)
+            yield I2C(device)

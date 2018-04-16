@@ -12,7 +12,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 import inject
 from lib.plugin import Loader
-from .service import HDA
+from .service import HDAPool
 
 
 class Loader(Loader):
@@ -21,10 +21,7 @@ class Loader(Loader):
     def enabled(self):
         return True
 
-    def config(self, binder):
-        binder.bind('hda', HDA())
-
-    @inject.params(manager='manager', bus='hda')
-    def boot(self, manager=None, bus=None):
-        for device in bus.devices:
+    @inject.params(manager='manager')
+    def boot(self, manager=None):
+        for device in (HDAPool()).devices:
             manager.append(device)

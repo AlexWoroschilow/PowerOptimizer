@@ -13,7 +13,7 @@
 import inject
 from lib.plugin import Loader
 
-from .service import Laptop
+from .service import LaptopModePool
 
 
 class Loader(Loader):
@@ -22,10 +22,7 @@ class Loader(Loader):
     def enabled(self):
         return True
 
-    def config(self, binder):
-        binder.bind('laptop', Laptop())
-
-    @inject.params(manager='manager', bus='laptop')
-    def boot(self, manager=None, bus=None):
-        for device in bus.devices:
+    @inject.params(manager='manager')
+    def boot(self, manager=None):
+        for device in (LaptopModePool()).devices:
             manager.append(device)

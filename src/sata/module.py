@@ -13,7 +13,7 @@
 import inject
 from lib.plugin import Loader
 
-from .service import Sata
+from .service import SataPool
 
 
 class Loader(Loader):
@@ -22,10 +22,7 @@ class Loader(Loader):
     def enabled(self):
         return True
 
-    def config(self, binder):
-        binder.bind('sata', Sata())
-
-    @inject.params(manager='manager', bus='sata')
-    def boot(self, manager=None, bus=None):
-        for device in bus.devices:
+    @inject.params(manager='manager')
+    def boot(self, manager=None):
+        for device in (SataPool()).devices:
             manager.append(device)

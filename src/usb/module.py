@@ -13,7 +13,7 @@
 import inject
 from lib.plugin import Loader
 
-from .service import USB
+from .service import USBPool
 
 
 class Loader(Loader):
@@ -22,10 +22,7 @@ class Loader(Loader):
     def enabled(self):
         return True
 
-    def config(self, binder):
-        binder.bind('usb', USB())
-
-    @inject.params(manager='manager', bus='usb')
-    def boot(self, manager=None, bus=None, dispatcher=None):
-        for device in bus.devices:
+    @inject.params(manager='manager')
+    def boot(self, manager=None):
+        for device in (USBPool()).devices:
             manager.append(device)

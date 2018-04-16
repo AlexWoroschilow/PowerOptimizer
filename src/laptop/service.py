@@ -10,12 +10,38 @@
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITION
+import os
+import inject
 
 
-class LaptopDevice(object):
+class LaptopMode(object):
 
     def __init__(self, path=''):
         self._path = path
+
+    @inject.params(logger='logger')
+    def __property_get(self, path=None, logger=None):
+        try:
+            if not path or not os.path.isfile(path):
+                return None
+            with open(path, 'r', errors='ignore') as stream:
+                return stream.read().strip("\n")
+        except (OSError, IOError) as ex:
+            logger.error(ex)
+            return None
+        return None
+
+    @inject.params(logger='logger')
+    def __property_set(self, path=None, value=None, logger=None):
+        try:
+            if not path or not os.path.isfile(path):
+                return None
+            with open(path, 'w', errors='ignore') as stream:
+                stream.write(value)
+                stream.close()
+        except (OSError, IOError) as ex:
+            logger.error(ex)
+        return None
 
     @property
     def name(self):
@@ -23,9 +49,7 @@ class LaptopDevice(object):
 
     @property
     def status(self):
-        with open(self._path, 'r', errors='ignore') as stream:
-            return stream.read().strip("\n")
-        return None
+        return self.__property_get(self._path)
 
     @property
     def optimized(self):
@@ -41,9 +65,7 @@ class LaptopDevice(object):
         See Laptop-mode for more details:        
         :return:  None
         """
-        with open(self._path, 'w') as stream:
-            stream.write('5')
-            stream.close()
+        self.__property_set(self._path, '5')
         return None
 
     def performance(self):
@@ -56,17 +78,15 @@ class LaptopDevice(object):
         See Laptop-mode for more details:        
         :return: 
         """
-        with open(self._path, 'w') as stream:
-            stream.write('0')
-            stream.close()
+        self.__property_set(self._path, '0')
         return None
 
 
-class Laptop(object):
+class LaptopModePool(object):
 
     def __init__(self, path="/proc/sys/vm/laptop_mode"):
         self._path = path
 
     @property
     def devices(self):
-        yield LaptopDevice(self._path)
+        yield LaptopMode(self._path)

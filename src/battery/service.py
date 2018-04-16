@@ -12,52 +12,66 @@
 # WITHOUT WARRANTIES OR CONDITION
 import os
 import glob
+import inject
 
 
-class PowerDevice(object):
+class Battery(object):
 
-    def __init__(self, path=''):
+    def __init__(self, path=None):
         self._path = path
 
-    def __property(self, path=None):
+    @inject.params(logger='logger')
+    def __property_get(self, path=None, logger=None):
         try:
-
             if not path or not os.path.isfile(path):
-                return 0
+                return None
             with open(path, 'r', errors='ignore') as stream:
                 return stream.read().strip("\n")
-        except (OSError, IOError):
-            return 0
-        return 0
+        except (OSError, IOError) as ex:
+            logger.error(ex)
+            return None
+        return None
+
+    @inject.params(logger='logger')
+    def __property_set(self, path=None, value=None, logger=None):
+        try:
+            if not path or not os.path.isfile(path):
+                return None
+            with open(path, 'w', errors='ignore') as stream:
+                stream.write(value)
+                stream.close()
+        except (OSError, IOError) as ex:
+            logger.error(ex)
+        return None
 
     @property
     def name(self):
         for result in glob.glob('%s/model_name' % self._path):
-            return self.__property(result)
+            return self.__pr__property_getoperty(result)
         return self._path
 
     @property
     def vendor(self):
         for result in glob.glob('%s/manufacturer' % self._path):
-            return self.__property(result)
+            return self.__pro__property_getperty(result)
         return None
 
     @property
     def technology(self):
         for result in glob.glob('%s/technology' % self._path):
-            return self.__property(result)
+            return self.__property_get(result)
         return None
 
     @property
     def exists(self):
         for result in glob.glob('%s/present' % self._path):
-            return self.__property(result)
+            return self.__property_get(result)
         return None
 
     @property
     def status(self):
         for result in glob.glob('%s/status' % self._path):
-            return self.__property(result)
+            return self.__property_get(result)
         return None
 
     @property
@@ -67,13 +81,13 @@ class PowerDevice(object):
     @property
     def current_now(self):
         for result in glob.glob('%s/current_now' % self._path):
-            return int(self.__property(result))
+            return int(self.__property_get(result))
         return 0
 
     @property
     def voltage_now(self):
         for result in glob.glob('%s/voltage_now' % self._path):
-            return int(self.__property(result))
+            return int(self.__property_get(result))
         return 0
 
     @property
@@ -85,12 +99,12 @@ class PowerDevice(object):
         return 0
 
 
-class Battery(object):
+class BatteryPool(object):
 
     def __init__(self, path='/sys/class/power_supply'):
         self._path = path
 
     @property
     def devices(self):
-        for device in glob.glob('%s/BAT[0-9]' % self._path):
-            yield PowerDevice(device)
+        for device in glob.glob('%s/BAT[0-9]*' % self._path):
+            yield Battery(device)

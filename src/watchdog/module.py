@@ -13,7 +13,7 @@
 import inject
 from lib.plugin import Loader
 
-from .service import Watchdog
+from .service import WatchdogPool
 
 
 class Loader(Loader):
@@ -22,10 +22,7 @@ class Loader(Loader):
     def enabled(self):
         return True
 
-    def config(self, binder):
-        binder.bind('watchdog', Watchdog())
-
-    @inject.params(manager='manager', bus='watchdog')
+    @inject.params(manager='manager')
     def boot(self, manager=None, bus=None):
-        for device in bus.devices:
+        for device in (WatchdogPool()).devices:
             manager.append(device)

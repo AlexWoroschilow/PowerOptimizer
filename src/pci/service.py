@@ -12,19 +12,40 @@
 # WITHOUT WARRANTIES OR CONDITION
 import os
 import glob
+import inject
+
 from lib.pciid import Manager
 
 
-class PCIDevice(object):
+class PCI(object):
 
     def __init__(self, path=''):
         self._path = path
         self._name = path
 
-    def _read(self, path=None):
-        with open(path, 'r', errors='ignore') as stream:
-            return stream.read().strip("\n")
-        return path
+    @inject.params(logger='logger')
+    def __property_get(self, path=None, logger=None):
+        try:
+            if not path or not os.path.isfile(path):
+                return None
+            with open(path, 'r', errors='ignore') as stream:
+                return stream.read().strip("\n")
+        except (OSError, IOError) as ex:
+            logger.error(ex)
+            return None
+        return None
+
+    @inject.params(logger='logger')
+    def __property_set(self, path=None, value=None, logger=None):
+        try:
+            if not path or not os.path.isfile(path):
+                return None
+            with open(path, 'w', errors='ignore') as stream:
+                stream.write(value)
+                stream.close()
+        except (OSError, IOError) as ex:
+            logger.error(ex)
+        return None
 
     @property
     def name(self):
@@ -43,22 +64,20 @@ class PCIDevice(object):
 
     @property
     def device(self):
-        device = self._read('%s/device' % self._path)
-        return device.strip('0x')
+        value = self.__property_get('%s/device' % self._path)
+        return value.strip('0x')
 
     @property
     def vendor(self):
-        device = self._read('%s/vendor' % self._path)
-        return device.strip('0x')
+        value = self.__property_get('%s/vendor' % self._path)
+        return value.strip('0x')
 
     @property
     def status(self):
         for result in glob.glob('%s/power/control' % self._path):
             if not os.path.isfile(result):
                 continue
-            with open(result, 'r', errors='ignore') as stream:
-                return stream.read().strip("\n")
-
+            return self.__property_get(result)
         return None
 
     @property
@@ -84,9 +103,7 @@ class PCIDevice(object):
         for result in glob.glob('%s/power/control' % self._path):
             if not os.path.isfile(result):
                 continue
-            with open(result, 'w') as stream:
-                stream.write('auto')
-                stream.close()
+            self.__property_set(result, 'auto')
 
     def performance(self):
         """
@@ -108,12 +125,10 @@ class PCIDevice(object):
         for result in glob.glob('%s/power/control' % self._path):
             if not os.path.isfile(result):
                 continue
-            with open(result, 'w') as stream:
-                stream.write('on')
-                stream.close()
+            self.__property_set(result, 'on')
 
 
-class PCI(object):
+class PCIPool(object):
 
     def __init__(self, path="/sys/bus/pci/devices"):
         self._manager = Manager()
@@ -122,7 +137,7 @@ class PCI(object):
     @property
     def devices(self):
         for device_path in glob.glob('%s/*' % self._path):
-            pci_device = PCIDevice(device_path)
+            pci_device = PCI(device_path)
             pci_device.name = pci_device.unique
             if self._manager.has(pci_device.unique):
                 device = self._manager.get(pci_device.unique)

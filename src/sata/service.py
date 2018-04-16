@@ -12,9 +12,10 @@
 # WITHOUT WARRANTIES OR CONDITION
 import os
 import glob
+import inject
 
 
-class SataDevice(object):
+class Sata(object):
 
     def __init__(self, path=''):
         """
@@ -40,18 +41,40 @@ class SataDevice(object):
         """
         self._path = path
 
+    @inject.params(logger='logger')
+    def __property_get(self, path=None, logger=None):
+        try:
+            if not path or not os.path.isfile(path):
+                return None
+            with open(path, 'r', errors='ignore') as stream:
+                return stream.read().strip("\n")
+        except (OSError, IOError) as ex:
+            logger.error(ex)
+            return None
+        return None
+
+    @inject.params(logger='logger')
+    def __property_set(self, path=None, value=None, logger=None):
+        try:
+            if not path or not os.path.isfile(path):
+                return None
+            with open(path, 'w', errors='ignore') as stream:
+                stream.write(value)
+                stream.close()
+        except (OSError, IOError) as ex:
+            logger.error(ex)
+        return None
+
     @property
     def name(self):
-        return "SATA - " + self._path
+        return "SATA - %s" % self._path
 
     @property
     def status(self):
         for result in glob.glob('%s/link_power_management_policy' % self._path):
             if not os.path.isfile(result):
                 continue
-            with open(result, 'r', errors='ignore') as stream:
-                return stream.read().strip("\n")
-
+            return self.__property_get(result)
         return None
 
     @property
@@ -80,9 +103,7 @@ class SataDevice(object):
         for result in glob.glob('%s/link_power_management_policy' % self._path):
             if not os.path.isfile(result):
                 continue
-            with open(result, 'w') as stream:
-                stream.write('min_power')
-                stream.close()
+            self.__property_set(result, 'min_power')
 
     def performance(self):
         """
@@ -106,12 +127,10 @@ class SataDevice(object):
         for result in glob.glob('%s/link_power_management_policy' % self._path):
             if not os.path.isfile(result):
                 continue
-            with open(result, 'w') as stream:
-                stream.write('max_performance')
-                stream.close()
+            self.__property_set(result, 'max_performance')
 
 
-class Sata(object):
+class SataPool(object):
 
     def __init__(self, path="/sys/class/scsi_host/"):
         self._path = path
@@ -119,4 +138,4 @@ class Sata(object):
     @property
     def devices(self):
         for device in glob.glob('%s/*' % self._path):
-            yield SataDevice(device)
+            yield Sata(device)

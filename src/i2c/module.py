@@ -12,8 +12,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 import inject
 from lib.plugin import Loader
-
-from .service import I2C
+from .service import I2CPool
 
 
 class Loader(Loader):
@@ -22,10 +21,7 @@ class Loader(Loader):
     def enabled(self):
         return True
 
-    def config(self, binder):
-        binder.bind('i2c', I2C())
-
-    @inject.params(manager='manager', bus='i2c', dispatcher='event_dispatcher')
-    def boot(self, manager=None, bus=None, dispatcher=None):
-        for device in bus.devices:
+    @inject.params(manager='manager')
+    def boot(self, manager=None):
+        for device in (I2CPool()).devices:
             manager.append(device)

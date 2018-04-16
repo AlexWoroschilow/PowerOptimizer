@@ -25,6 +25,6 @@ class Loader(Loader):
     def config(self, binder=None):
         binder.bind_to_constructor('manager', self.__create_manager)
 
-    @inject.params(battery='battery')
+    @inject.params(battery='battery-0')
     def __create_manager(self, battery=None):
         return Manager(battery)

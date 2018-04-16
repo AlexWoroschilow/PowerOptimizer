@@ -12,6 +12,8 @@
 # WITHOUT WARRANTIES OR CONDITION
 import os
 import glob
+import inject
+
 from lib.pciid import Manager
 
 
@@ -21,27 +23,44 @@ class USBDevice(object):
         self._path = path
         self._name = None
 
-    def _read(self, path=None):
-        if os.path.exists(path):
+    @inject.params(logger='logger')
+    def __property_get(self, path=None, logger=None):
+        try:
+            if not path or not os.path.isfile(path):
+                return None
             with open(path, 'r', errors='ignore') as stream:
                 return stream.read().strip("\n")
+        except (OSError, IOError) as ex:
+            logger.error(ex)
+            return None
+        return None
+
+    @inject.params(logger='logger')
+    def __property_set(self, path=None, value=None, logger=None):
+        try:
+            if not path or not os.path.isfile(path):
+                return None
+            with open(path, 'w', errors='ignore') as stream:
+                stream.write(value)
+                stream.close()
+        except (OSError, IOError) as ex:
+            logger.error(ex)
         return None
 
     @property
     def name(self):
         if self._name != None:
-            return "USB - " + self._name
+            return "USB - %s" % self._name
 
         for result in glob.glob('%s/interface' % self._path):
             if not os.path.isfile(result):
                 continue
-            with open(result, 'r', errors='ignore') as stream:
-                return "USB - " + stream.read().strip("\n")
+            return "USB - %s" % self.__property_get(result)
 
         if self.unique != None:
-            return "USB - " + self.unique
+            return "USB - %s" % self.unique
 
-        return "USB - " + self._path
+        return "USB - %s" % self._path
 
     @name.setter
     def name(self, value=None):
@@ -57,19 +76,18 @@ class USBDevice(object):
 
     @property
     def device(self):
-        return self._read('%s/idProduct' % self._path)
+        return self.__property_get('%s/idProduct' % self._path)
 
     @property
     def vendor(self):
-        return self._read('%s/idVendor' % self._path)
+        return self.__property_get('%s/idVendor' % self._path)
 
     @property
     def status(self):
         for result in glob.glob('%s/power/control' % self._path):
             if not os.path.isfile(result):
                 continue
-            with open(result, 'r', errors='ignore') as stream:
-                return stream.read().strip("\n")
+            return self.__property_get(result)
         return None
 
     @property
@@ -91,30 +109,22 @@ class USBDevice(object):
         for result in glob.glob('%s/power/autosuspend' % self._path):
             if not os.path.isfile(result):
                 continue
-            with open(result, 'w') as stream:
-                stream.write('0')
-                stream.close()
+            self.__property_set(result, '0')
 
         for result in glob.glob('%s/power/level' % self._path):
             if not os.path.isfile(result):
                 continue
-            with open(result, 'w') as stream:
-                stream.write('auto')
-                stream.close()
+            self.__property_set(result, 'auto')
 
         for result in glob.glob('%s/power/autosuspend_delay_ms' % self._path):
             if not os.path.isfile(result):
                 continue
-            with open(result, 'w') as stream:
-                stream.write('0')
-                stream.close()
+            self.__property_set(result, '0')
 
         for result in glob.glob('%s/power/control' % self._path):
             if not os.path.isfile(result):
                 continue
-            with open(result, 'w') as stream:
-                stream.write('auto')
-                stream.close()
+            self.__property_set(result, 'auto')
 
     def performance(self):
         """
@@ -137,33 +147,25 @@ class USBDevice(object):
         for result in glob.glob('%s/power/autosuspend' % self._path):
             if not os.path.isfile(result):
                 continue
-            with open(result, 'w') as stream:
-                stream.write('-1')
-                stream.close()
+            self.__property_set(result, '-1')
 
         for result in glob.glob('%s/power/level' % self._path):
             if not os.path.isfile(result):
                 continue
-            with open(result, 'w') as stream:
-                stream.write('on')
-                stream.close()
+            self.__property_set(result, 'on')
 
         for result in glob.glob('%s/power/autosuspend_delay_ms' % self._path):
             if not os.path.isfile(result):
                 continue
-            with open(result, 'w') as stream:
-                stream.write('-1')
-                stream.close()
+            self.__property_set(result, '-1')
 
         for result in glob.glob('%s/power/control' % self._path):
             if not os.path.isfile(result):
                 continue
-            with open(result, 'w') as stream:
-                stream.write('on')
-                stream.close()
+            self.__property_set(result, 'on')
 
 
-class USB(object):
+class USBPool(object):
 
     def __init__(self, path="/sys/bus/usb/devices/"):
         self._path = path

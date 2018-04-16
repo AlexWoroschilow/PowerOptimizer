@@ -13,7 +13,7 @@
 import inject
 from lib.plugin import Loader
 
-from .service import PCI
+from .service import PCIPool
 
 
 class Loader(Loader):
@@ -22,11 +22,7 @@ class Loader(Loader):
     def enabled(self):
         return True
 
-    def config(self, binder):
-        binder.bind('pci', PCI())
-
-    @inject.params(manager='manager', bus='pci', logger='logger')
-    def boot(self, manager=None, bus=None, logger=None):
-        for device in bus.devices:
-            logger.debug(device.name)
+    @inject.params(manager='manager')
+    def boot(self, manager=None):
+        for device in (PCIPool()).devices:
             manager.append(device)

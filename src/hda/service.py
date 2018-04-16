@@ -11,12 +11,37 @@
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITION
 import os
+import inject
 
 
-class HDADevice(object):
+class HDA(object):
 
     def __init__(self, path=''):
         self._path = path
+
+    @inject.params(logger='logger')
+    def __property_get(self, path=None, logger=None):
+        try:
+            if not path or not os.path.isfile(path):
+                return None
+            with open(path, 'r', errors='ignore') as stream:
+                return stream.read().strip("\n")
+        except (OSError, IOError) as ex:
+            logger.error(ex)
+            return None
+        return None
+
+    @inject.params(logger='logger')
+    def __property_set(self, path=None, value=None, logger=None):
+        try:
+            if not path or not os.path.isfile(path):
+                return None
+            with open(path, 'w', errors='ignore') as stream:
+                stream.write(value)
+                stream.close()
+        except (OSError, IOError) as ex:
+            logger.error(ex)
+        return None
 
     @property
     def name(self):
@@ -24,31 +49,24 @@ class HDADevice(object):
 
     @property
     def status(self):
-        if os.path.isfile(self._path):
-            with open(self._path, 'r', errors='ignore') as stream:
-                return stream.read().strip("\n")
-        return None
+        return self.__property_get(self._path)
 
     @property
     def optimized(self):
         return self.status in ['1']
 
     def powersafe(self):
-        with open(self._path, 'w') as stream:
-            stream.write('1')
-            stream.close()
+        self.__property_set(self._path, '1')
 
     def performance(self):
-        with open(self._path, 'w') as stream:
-            stream.write('0')
-            stream.close()
+        self.__property_set(self._path, '0')
 
 
-class HDA(object):
+class HDAPool(object):
 
     def __init__(self, path="/sys/module/snd_hda_intel/parameters/power_save"):
         self._path = path
 
     @property
     def devices(self):
-        yield HDADevice(self._path)
+        yield HDA(self._path)
