@@ -23,6 +23,6 @@ class Loader(Loader):
         return True
 
     @inject.params(manager='manager')
-    def boot(self, manager=None, bus=None):
+    def boot(self, options=None, args=None, manager=None):
         for device in (WatchdogPool()).devices:
             manager.append(device)

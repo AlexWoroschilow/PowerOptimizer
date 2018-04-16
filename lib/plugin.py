@@ -52,7 +52,7 @@ class Loader(object):
         :return: 
         """
 
-    def boot(self):
+    def boot(self, options=None, args=None):
         """
         
         :param event_dispatcher: 

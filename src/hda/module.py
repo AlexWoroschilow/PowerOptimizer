@@ -22,6 +22,6 @@ class Loader(Loader):
         return True
 
     @inject.params(manager='manager')
-    def boot(self, manager=None):
+    def boot(self, options=None, args=None, manager=None):
         for device in (HDAPool()).devices:
             manager.append(device)

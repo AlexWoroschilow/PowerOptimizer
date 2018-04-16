@@ -35,12 +35,12 @@ class Kernel(object):
         self._args = args
         self._loaders = []
 
-        inject.configure(self.__init)
+        inject.configure(self.__configure_container)
 
         for loader in self._loaders:
-            if not loader.enabled:
-                continue
-            loader.boot()
+            if hasattr(loader.__class__, 'boot') and \
+            callable(getattr(loader.__class__, 'boot')):
+                loader.boot(options, args)
 
         self._container = inject.get_injector()
         ed = self._container.get_instance('event_dispatcher')
@@ -54,42 +54,41 @@ class Kernel(object):
     def args(self):
         return self._args
 
-    def __init(self, binder):
+    def __configure_container(self, binder):
+        binder.bind('kernel', self)
+        
         logger = logging.getLogger('app')
         binder.bind('logger', logger)
-        binder.bind('event_dispatcher', Dispatcher(logging.getLogger('ed')))
-        binder.bind('kernel', self)
+        
+        logger = logging.getLogger('dispatcher')
+        binder.bind('event_dispatcher', Dispatcher(logger))
 
+        logger = logging.getLogger('kernel')
         for module_source in self.__modules(self._sources):
-            module = importlib.import_module(module_source, False)
-            with module.Loader(self._options, self._args) as loader:
-                self._loaders.append(loader)
-                if not loader.enabled:
-                    continue
-                if hasattr(loader.__class__, 'config') and callable(getattr(loader.__class__, 'config')):
-                    try:
-                        binder.install(loader.config)
-                    except UnicodeDecodeError as err:
-                        logger.error(err)
+            try:
+                module = importlib.import_module(module_source, False)
+                with module.Loader(self._options, self._args) as loader:
+                    if not loader.enabled:
                         continue
+                    
+                    if hasattr(loader.__class__, 'config') and \
+                    callable(getattr(loader.__class__, 'config')):
+                            binder.install(loader.config)
+                            
+                    self._loaders.append(loader)
+                    
+            except (SyntaxError, RuntimeError) as err:
+                logger.critical("%s: %s" % (module_source, err))
+                continue
 
     def __modules(self, mask=None):
-        """
-        
-        :param mask: 
-        :return: 
-        """
-        collection = []
-        logger = logging.getLogger('app')
+        logger = logging.getLogger('kernel')
         for source in glob.glob(mask):
             if os.path.exists(source):
                 logger.debug("config: %s" % source)
                 yield source[:-3].replace('/', '.')
 
     def get(self, name):
-        """
-        
-        :param name: 
-        :return: 
-        """
+        if self._container is None:
+            return None
         return self._container.get_instance(name)
