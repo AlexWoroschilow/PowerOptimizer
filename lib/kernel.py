@@ -21,30 +21,21 @@ from lib.event import Dispatcher
 
 class Kernel(object):
 
-    def __init__(self, options=None, args=None, sources="src/**/module.py"):
-        """_
-        
-        :param self: 
-        :param options: 
-        :param args: 
-        :param config: 
-        :return: 
-        """
+    def __init__(self, options=None, args=None, sources="modules/**/module.py"):
         self._options = options
         self._sources = sources
         self._args = args
         self._loaders = []
 
-        inject.configure(self.__configure_container)
+        inject.configure(self.__configure_dependencies)
 
         for loader in self._loaders:
             if hasattr(loader.__class__, 'boot') and \
             callable(getattr(loader.__class__, 'boot')):
                 loader.boot(options, args)
 
-        self._container = inject.get_injector()
-        ed = self._container.get_instance('event_dispatcher')
-        ed.dispatch('kernel.start')
+        dispatcher = self.get('event_dispatcher')
+        dispatcher.dispatch('kernel.start')
 
     @property
     def options(self):
@@ -54,11 +45,9 @@ class Kernel(object):
     def args(self):
         return self._args
 
-    def __configure_container(self, binder):
-        binder.bind('kernel', self)
+    def __configure_dependencies(self, binder):
         
-        logger = logging.getLogger('app')
-        binder.bind('logger', logger)
+        binder.bind('logger', logging.getLogger('app'))
         
         logger = logging.getLogger('dispatcher')
         binder.bind('event_dispatcher', Dispatcher(logger))
@@ -80,6 +69,8 @@ class Kernel(object):
             except (SyntaxError, RuntimeError) as err:
                 logger.critical("%s: %s" % (module_source, err))
                 continue
+            
+        binder.bind('kernel', self)
 
     def __modules(self, mask=None):
         logger = logging.getLogger('kernel')
@@ -88,7 +79,19 @@ class Kernel(object):
                 logger.debug("config: %s" % source)
                 yield source[:-3].replace('/', '.')
 
-    def get(self, name):
-        if self._container is None:
-            return None
-        return self._container.get_instance(name)
+    def get(self, name=None):
+        container = inject.get_injector()
+        return container.get_instance(name)
+
+    def dispatch(self, name=None, event=None):
+        dispatcher = self.get('event_dispatcher')
+        dispatcher.dispatch(name, event)
+        
+    def listen(self, name=None, action=None, priority=0):
+        dispatcher = self.get('event_dispatcher')
+        dispatcher.add_listener(name, action, priority)
+
+    def unlisten(self, name=None, action=None):
+        dispatcher = self.get('event_dispatcher')
+        dispatcher.remove_listener(name, action)
+

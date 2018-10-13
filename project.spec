@@ -33,15 +33,15 @@ cp -R usr/lib/power-optimizer/res/* $RPM_BUILD_ROOT/usr/lib/power-optimizer/res
 install -d usr/lib/power-optimizer/ $RPM_BUILD_ROOT/usr/lib/power-optimizer/udev/rules.d
 cp -R usr/lib/power-optimizer/udev/rules.d/* $RPM_BUILD_ROOT/usr/lib/power-optimizer/udev/rules.d
 
-cp usr/lib/power-optimizer/power-optimizer.py $RPM_BUILD_ROOT/usr/lib/power-optimizer
+cp usr/lib/power-optimizer/main.py $RPM_BUILD_ROOT/usr/lib/power-optimizer
 
 
 touch $RPM_BUILD_ROOT%{binary}
 chmod 755 $RPM_BUILD_ROOT%{binary}
 echo "#!/bin/bash" > $RPM_BUILD_ROOT%{binary}
 echo "PYTHON=\"/usr/bin/python3\"">> $RPM_BUILD_ROOT%{binary}
-echo "BINARY=\"/usr/lib/power-optimizer/power-optimizer.py\"">> $RPM_BUILD_ROOT%{binary}
-echo "exec \${PYTHON} \${BINARY} --log-level=%{loglevel} --log-file=%{logfile} \$@">> $RPM_BUILD_ROOT%{binary}
+echo "BINARY=\"/usr/lib/power-optimizer/main.py\"">> $RPM_BUILD_ROOT%{binary}
+echo "exec \${PYTHON} \${BINARY} --loglevel=%{loglevel} --logfile=%{logfile} \$@">> $RPM_BUILD_ROOT%{binary}
 
 %post
 cp /usr/lib/power-optimizer/udev/rules.d/70-power.rules /etc/udev/rules.d
@@ -63,7 +63,7 @@ rm -rf $RPM_BUILD_ROOT
 %dir /usr/lib/power-optimizer/res
 %dir /usr/lib/power-optimizer/udev
 %defattr(644,root,root,775)
-%attr(755,root,root) /usr/lib/power-optimizer/power-optimizer.py
+%attr(755,root,root) /usr/lib/power-optimizer/main.py
 %attr(755,root,root) %{binary}
 /usr/lib/power-optimizer/lib/*
 /usr/lib/power-optimizer/src/*
