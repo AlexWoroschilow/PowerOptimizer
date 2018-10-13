@@ -22,9 +22,12 @@ class Pool(object):
     def devices(self, config=None):
         if int(config.get('ignore.i2c')):
             return None
+        
         for device in glob.glob('/sys/bus/i2c/devices/i2c-*'):
+            
             if not config.has('i2c.%s' % device):
                 config.set('i2c.%s' % device, '0')
+                
             yield I2C(device)
 
 

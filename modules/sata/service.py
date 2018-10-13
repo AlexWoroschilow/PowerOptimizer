@@ -22,8 +22,14 @@ class Pool(object):
     def devices(self, config=None):
         if int(config.get('ignore.sata')):
             return None
-        for device in glob.glob('/sys/class/scsi_host/*'):
-            yield Sata(device)
+        
+        for path in glob.glob('/sys/class/scsi_host/*'):
+            
+            path = path.replace(':', '/')
+            if path is not None and not config.has('sata.%s' % path):
+                config.set('sata.%s' % path, '0')
+            
+            yield Sata(path)
 
 
 class Sata(object):

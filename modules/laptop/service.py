@@ -21,8 +21,10 @@ class Pool(object):
     def devices(self, config=None):
         if int(config.get('ignore.laptop')):
             return None
+        
         if not config.has('mode.laptop'):
             config.set('mode.laptop', '0')
+            
         yield LaptopMode('/proc/sys/vm/laptop_mode')
 
 

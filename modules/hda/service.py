@@ -21,8 +21,10 @@ class Pool(object):
     def devices(self, config=None):
         if int(config.get('ignore.hda')):
             return None
+        
         if not config.has('hda.snd_hda_intel'):
             config.set('hda.snd_hda_intel', '0')
+            
         yield HDA('/sys/module/snd_hda_intel/parameters/power_save')
 
 

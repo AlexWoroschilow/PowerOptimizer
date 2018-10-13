@@ -22,10 +22,14 @@ class Pool(object):
     def devices(self, config=None):
         if int(config.get('ignore.cpu')):
             return None
+        
         for device in glob.glob('/sys/devices/system/cpu/cpu[0-9]*'):
+            
             device = CPU(device)
+            
             if not config.has('cpu.%s' % device.path):
                 config.set('cpu.%s' % device.path, '0')
+                
             yield device
 
 
