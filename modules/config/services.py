@@ -53,6 +53,14 @@ class ConfigService(object):
             return self._parser.get(section, option)
         return None
 
+    def comment(self, section, text1='', text2=''):
+        if not self._parser.has_section(section):
+            self._parser.add_section(section)
+        self._parser.set(section, "\n# %s" % text1, text2)
+        with open(self._file, 'w') as stream:
+            self._parser.write(stream)
+            stream.close()
+
     def set(self, name, value=None):
         section, option = name.split('.', 1)
         

@@ -21,9 +21,11 @@ class Pool(object):
     def devices(self, config=None):
         if int(config.get('ignore.watchdog')):
             return None
-        if not config.has('watchdog.nmi'):
-            config.set('watchdog.nmi', '0')
-        yield Watchdog('/proc/sys/kernel/nmi_watchdog')
+        if not config.has('ignore_watchdog.nmi'):
+            config.set('ignore_watchdog.nmi', '0')
+            
+        if not int(config.get('ignore_watchdog.nmi')):
+            yield Watchdog('/proc/sys/kernel/nmi_watchdog')
 
 
 class Watchdog(object):

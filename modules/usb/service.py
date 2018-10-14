@@ -39,8 +39,12 @@ class Pool(object):
                 device.name = device_recognized.__str__()
 
             unique = device.unique.replace(':', '/')
-            if unique is not None and not config.has('usb.%s' % unique):
-                config.set('usb.%s' % unique, '0')
+            if unique is not None and not config.has('ignore_usb.%s' % unique):
+                config.comment('ignore_usb', device.name, '0, do not ignore by default')
+                config.set('ignore_usb.%s' % unique, '0')
+                
+            if int(config.get('ignore_usb.%s' % unique)):
+                continue
                 
             yield device
 

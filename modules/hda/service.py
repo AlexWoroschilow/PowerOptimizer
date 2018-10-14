@@ -22,10 +22,11 @@ class Pool(object):
         if int(config.get('ignore.hda')):
             return None
         
-        if not config.has('hda.snd_hda_intel'):
-            config.set('hda.snd_hda_intel', '0')
+        if not config.has('ignore_hda.snd_hda_intel'):
+            config.set('ignore_hda.snd_hda_intel', '0')
             
-        yield HDA('/sys/module/snd_hda_intel/parameters/power_save')
+        if not int(config.get('ignore_hda.snd_hda_intel')):
+            yield HDA('/sys/module/snd_hda_intel/parameters/power_save')
 
 
 class HDA(object):

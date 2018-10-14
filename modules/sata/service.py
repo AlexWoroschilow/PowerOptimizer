@@ -26,8 +26,11 @@ class Pool(object):
         for path in glob.glob('/sys/class/scsi_host/*'):
             
             path = path.replace(':', '/')
-            if path is not None and not config.has('sata.%s' % path):
-                config.set('sata.%s' % path, '0')
+            if path is not None and not config.has('ignore_sata.%s' % path):
+                config.set('ignore_sata.%s' % path, '0')
+            
+            if int(config.get('ignore_sata.%s' % path)):
+                continue
             
             yield Sata(path)
 

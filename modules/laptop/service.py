@@ -22,10 +22,11 @@ class Pool(object):
         if int(config.get('ignore.laptop')):
             return None
         
-        if not config.has('mode.laptop'):
-            config.set('mode.laptop', '0')
+        if not config.has('ignore_mode.laptop'):
+            config.set('ignore_mode.laptop', '0')
             
-        yield LaptopMode('/proc/sys/vm/laptop_mode')
+        if not int(config.get('ignore_mode.laptop')):
+            yield LaptopMode('/proc/sys/vm/laptop_mode')
 
 
 class LaptopMode(object):

@@ -39,8 +39,12 @@ class Pool(object):
                 device.name = device_recognized.__str__()
                 
             unique = device.unique.replace(':', '/')
-            if unique is not None and not config.has('pci.%s' % unique):
-                config.set('pci.%s' % unique, '0')
+            if unique is not None and not config.has('ignore_pci.%s' % unique):
+                config.comment('ignore_pci', device.name, '0, do not ignore by default')
+                config.set('ignore_pci.%s' % unique, '0')
+            
+            if int(config.get('ignore_pci.%s' % unique)):
+                continue
                 
             yield device
 

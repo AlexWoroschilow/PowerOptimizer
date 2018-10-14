@@ -23,12 +23,17 @@ class Pool(object):
         if int(config.get('ignore.i2c')):
             return None
         
-        for device in glob.glob('/sys/bus/i2c/devices/i2c-*'):
+        for path in glob.glob('/sys/bus/i2c/devices/i2c-*'):
             
-            if not config.has('i2c.%s' % device):
-                config.set('i2c.%s' % device, '0')
+            device = I2C(path)
+            if not config.has('ignore_i2c.%s' % path):
+                config.comment('ignore_i2c', device.name, '0, do not ignore by default')
+                config.set('ignore_i2c.%s' % path, '0')
                 
-            yield I2C(device)
+            if int(config.get('ignore_i2c.%s' % path)):
+                continue
+                
+            yield device
 
 
 class I2C(object):

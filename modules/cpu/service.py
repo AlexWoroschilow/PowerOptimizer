@@ -27,8 +27,11 @@ class Pool(object):
             
             device = CPU(device)
             
-            if not config.has('cpu.%s' % device.path):
-                config.set('cpu.%s' % device.path, '0')
+            if not config.has('ignore_cpu.%s' % device.path):
+                config.set('ignore_cpu.%s' % device.path, '0')
+                
+            if int(config.get('ignore_cpu.%s' % device.path)):
+                continue
                 
             yield device
 
