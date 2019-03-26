@@ -1,0 +1,36 @@
+#! /usr/bin/env python3
+# -*- coding: utf-8 -*-
+# Copyright 2019 Alex Woroschilow (alex.woroschilow@gmail.com)
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITION
+import os
+import sys
+import glob
+
+source = '/sys/bus/pci/devices'
+if not os.path.exists(source): sys.exit()
+# Each device in the driver model has a flag to control whether it is subject to runtime power management.
+# This flag, runtime_auto, is initialized by the bus type (or generally subsystem) code using pm_runtime_allow() or pm_runtime_forbid();
+# the default is to allow runtime power management.
+#
+# The setting can be adjusted by user space by writing either “on” or “auto” to the device’s power/control sysfs file.
+# Writing “auto” calls pm_runtime_allow(), setting the flag and allowing the device to be runtime power-managed by its driver.
+# Writing “on” calls pm_runtime_forbid(), clearing the flag, returning the device to full power if it was in a low-power state,
+# and preventing the device from being runtime power-managed. User space can check the current value of the runtime_auto flag by reading that file.
+# The device’s runtime_auto flag has no effect on the handling of system-wide power transitions.
+#
+# In particular, the device can (and in the majority of cases should and will) be put into a low-power state during a system-wide transition to a sleep state even though its runtime_auto flag is clear.
+# For more information about the runtime power management framework, refer to Documentation/power/runtime_pm.txt.
+for device in glob.glob('{}/*'.format(source)):
+    power_control = '{}/power/control'.format(device)
+    if not os.path.exists(power_control): continue
+    with open(power_control, 'w', errors='ignore') as stream:
+        stream.write('auto')
